@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circulo entre dedos - Por colores</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+</head>
+<body>
+
+  <div id="resultados"></div>
+
+  <script>
+    //Objetos
+    let handPose //Modelo ML5
+    let video    //Cámara
+    let hands=[] //Manos (0,1,2)
+    let distancia//Distancia xd
+
+    async function setup(){
+      handPose = await ml5.handPose()
+
+      createCanvas(640,480) //HQ (Alta Calidad)
+
+      //Detección del video (cámara)
+      video = createCapture(VIDEO)
+      video.size(640,480)
+      video.hide()
+
+      handPose.detectStart(video, gotHands)
+    }
+
+    function draw(){
+      //hands, contiene la información de cada dedo y su ubicación en 20 y 30
+      image(video,0,0,width,height)
+      if(hands.length > 0){
+        //console.log(hands[0])
+        let finger = hands[0].index_finger_tip
+        let thumb = hands[0].thumb_tip
+
+        resultados.innerHTML = `[Éje X] = Índice: ${finger.x} - Pulgar: ${thumb.x}`
+
+        let centerX = (finger.x + thumb.x) /2
+        let centerY = (finger.y + thumb.y) /2
+        distancia = dist(finger.x,finger.y,thumb.x,thumb.y)
+
+        if(distancia<=60){
+          fill(0,255,0,200)
+        }else if(distancia <=150){
+          fill(255,255,0,200)
+        }else{
+          fill(255,0,0,200)
+        }
+        
+
+
+        stroke(0)
+        strokeWeight(2)
+        circle(centerX,centerY,distancia)
+      }
+    }
+
+    function gotHands(results){
+      hands = results
+    }
+
+  </script>
+</body>
+</html>

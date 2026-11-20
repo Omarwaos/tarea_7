@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detección de Índice - ml5</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+
+  <div id="resultados"></div>
+
+  <script>
+    let handPose;
+    let video;
+    let hands = [];
+
+    async function setup() {
+      handPose = await ml5.handPose();
+
+      createCanvas(640, 480);
+
+      // Detección del video (cámara)
+      video = createCapture(VIDEO);
+      video.size(640, 480);
+      video.hide();
+
+      handPose.detectStart(video, gotHands);
+    }
+
+    function draw() {
+      image(video, 0, 0, width, height);
+
+      // Verifica que exista al menos una mano detectada
+      if (hands.length > 0) {
+        let finger = hands[0].index_finger_tip;
+        let desplazamientoY= 40;
+
+        resultados.innerHTML = `Índice -> X: ${Math.round(finger.x)} | Y: ${Math.round(finger.y)}`;
+
+        fill(0, 255, 0, 200);
+        stroke(0);
+        strokeWeight(2);
+        
+        // Dibuja el círculo directamente en las coordenadas del índice con un tamaño fijo (40px)
+        circle(finger.x, finger.y - desplazamientoY, 40);
+      }
+    }
+
+    function gotHands(results) {
+      hands = results;
+    }
+  </script>
+</body>
+</html>
